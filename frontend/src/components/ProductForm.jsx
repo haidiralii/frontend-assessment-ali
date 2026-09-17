@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import './ProductForm.css'
 
+const API_URL =
+  'https://my-json-server.typicode.com/haidiralii/frontend-assessment-ali/products'
+
 const CATEGORIES = ['Electronics', 'Home & Kitchen', 'Apparel']
 
 const STATUSES = ['In Stock', 'Out of Stock']
@@ -18,12 +21,14 @@ function validateField(field, value) {
       if (!value.trim()) {
         return 'Name is required.'
       }
+
       return ''
 
     case 'category':
       if (!CATEGORIES.includes(value)) {
         return 'Please select a valid category.'
       }
+
       return ''
 
     case 'price': {
@@ -48,6 +53,7 @@ function validateField(field, value) {
       if (!STATUSES.includes(value)) {
         return 'Please select a valid status.'
       }
+
       return ''
 
     default:
@@ -69,7 +75,12 @@ function validateForm(formData) {
   return errors
 }
 
-function ProductForm({ product, onClose }) {
+function ProductForm({
+  product,
+  onClose,
+  onProductCreated,
+  onProductUpdated,
+}) {
   const isEditMode = Boolean(product)
 
   const [formData, setFormData] = useState(
@@ -80,11 +91,13 @@ function ProductForm({ product, onClose }) {
           price: String(product.price),
           status: product.status,
         }
-      : INITIAL_FORM_DATA,
+      : { ...INITIAL_FORM_DATA },
   )
 
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const isFormValid = Object.keys(validateForm(formData)).length === 0
 
@@ -93,6 +106,8 @@ function ProductForm({ product, onClose }) {
       ...currentData,
       [field]: value,
     }))
+
+    setSubmitError('')
 
     if (touched[field]) {
       const error = validateField(field, value)
@@ -132,7 +147,7 @@ function ProductForm({ product, onClose }) {
     })
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
 
     const validationErrors = validateForm(formData)
@@ -150,11 +165,61 @@ function ProductForm({ product, onClose }) {
       return
     }
 
-    // POST/PATCH will be connected in the CRUD step.
-    console.log('Valid product data:', {
-      ...formData,
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    const productData = {
+      name: formData.name.trim(),
+      category: formData.category,
       price: Number(formData.price),
-    })
+      status: formData.status,
+    }
+
+    try {
+      const response = await fetch(
+        isEditMode ? `${API_URL}/${product.id}` : API_URL,
+        {
+          method: isEditMode ? 'PATCH' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(
+            isEditMode
+              ? productData
+              : {
+                  ...productData,
+                  createdAt: new Date().toISOString(),
+                },
+          ),
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          isEditMode
+            ? 'Failed to update product.'
+            : 'Failed to create product.',
+        )
+      }
+
+      const savedProduct = await response.json()
+
+      if (isEditMode) {
+        onProductUpdated(savedProduct)
+      } else {
+        onProductCreated(savedProduct)
+      }
+
+      onClose()
+    } catch (error) {
+      setSubmitError(
+        isEditMode
+          ? 'Failed to update product. Please try again.'
+          : 'Failed to create product. Please try again.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -163,6 +228,7 @@ function ProductForm({ product, onClose }) {
         <div className="product-form-header">
           <div>
             <h2>{isEditMode ? 'Edit Product' : 'Add Product'}</h2>
+
             <p>
               {isEditMode
                 ? 'Update product information.'
@@ -175,6 +241,7 @@ function ProductForm({ product, onClose }) {
             className="product-form-close"
             onClick={onClose}
             aria-label="Close form"
+            disabled={isSubmitting}
           >
             ×
           </button>
@@ -194,6 +261,7 @@ function ProductForm({ product, onClose }) {
               }
               onBlur={() => handleBlur('name')}
               aria-invalid={Boolean(errors.name)}
+              disabled={isSubmitting}
             />
 
             {errors.name && (
@@ -214,6 +282,7 @@ function ProductForm({ product, onClose }) {
               }
               onBlur={() => handleBlur('category')}
               aria-invalid={Boolean(errors.category)}
+              disabled={isSubmitting}
             >
               <option value="">Select category</option>
 
@@ -246,6 +315,7 @@ function ProductForm({ product, onClose }) {
               }
               onBlur={() => handleBlur('price')}
               aria-invalid={Boolean(errors.price)}
+              disabled={isSubmitting}
             />
 
             {errors.price && (
@@ -266,6 +336,7 @@ function ProductForm({ product, onClose }) {
               }
               onBlur={() => handleBlur('status')}
               aria-invalid={Boolean(errors.status)}
+              disabled={isSubmitting}
             >
               {STATUSES.map((status) => (
                 <option key={status} value={status}>
@@ -281,11 +352,18 @@ function ProductForm({ product, onClose }) {
             )}
           </div>
 
+          {submitError && (
+            <div className="product-form-error">
+              {submitError}
+            </div>
+          )}
+
           <div className="product-form-actions">
             <button
               type="button"
               className="product-form-cancel"
               onClick={onClose}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
@@ -293,9 +371,15 @@ function ProductForm({ product, onClose }) {
             <button
               type="submit"
               className="product-form-submit"
-              disabled={!isFormValid}
+              disabled={!isFormValid || isSubmitting}
             >
-              {isEditMode ? 'Save Changes' : 'Create Product'}
+              {isSubmitting
+                ? isEditMode
+                  ? 'Saving...'
+                  : 'Creating...'
+                : isEditMode
+                  ? 'Save Changes'
+                  : 'Create Product'}
             </button>
           </div>
         </form>
