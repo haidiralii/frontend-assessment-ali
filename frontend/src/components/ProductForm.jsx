@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import './ProductForm.css'
 
-const API_URL =
-  'https://my-json-server.typicode.com/haidiralii/frontend-assessment-ali/products'
+import './ProductForm.css'
 
 const CATEGORIES = ['Electronics', 'Home & Kitchen', 'Apparel']
 
@@ -99,7 +97,8 @@ function ProductForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
-  const isFormValid = Object.keys(validateForm(formData)).length === 0
+  const isFormValid =
+    Object.keys(validateForm(formData)).length === 0
 
   function handleChange(field, value) {
     setFormData((currentData) => ({
@@ -176,38 +175,16 @@ function ProductForm({
     }
 
     try {
-      const response = await fetch(
-        isEditMode ? `${API_URL}/${product.id}` : API_URL,
-        {
-          method: isEditMode ? 'PATCH' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(
-            isEditMode
-              ? productData
-              : {
-                  ...productData,
-                  createdAt: new Date().toISOString(),
-                },
-          ),
-        },
-      )
-
-      if (!response.ok) {
-        throw new Error(
-          isEditMode
-            ? 'Failed to update product.'
-            : 'Failed to create product.',
-        )
-      }
-
-      const savedProduct = await response.json()
-
       if (isEditMode) {
-        onProductUpdated(savedProduct)
+        await onProductUpdated({
+          ...productData,
+          id: product.id,
+        })
       } else {
-        onProductCreated(savedProduct)
+        await onProductCreated({
+          ...productData,
+          createdAt: new Date().toISOString(),
+        })
       }
 
       onClose()
@@ -227,7 +204,9 @@ function ProductForm({
       <div className="product-form-modal">
         <div className="product-form-header">
           <div>
-            <h2>{isEditMode ? 'Edit Product' : 'Add Product'}</h2>
+            <h2>
+              {isEditMode ? 'Edit Product' : 'Add Product'}
+            </h2>
 
             <p>
               {isEditMode
