@@ -121,3 +121,71 @@
   border: 1px solid #fecaca;
 }
 
+.filter-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 200px 200px;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.search-field,
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-field label,
+.filter-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.search-field input,
+.filter-field select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-field input:focus,
+.filter-field select:focus {
+  border-color: var(--maroon-primary);
+  box-shadow: 0 0 0 3px rgba(116, 42, 42, 0.1);
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .filter-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .app {
+    padding: 32px 16px;
+  }
+}
