@@ -10,12 +10,76 @@
 
 /* Header dengan aksen gradien */
 .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
   margin-bottom: 32px;
   padding: 32px;
-  background: linear-gradient(to bottom right, var(--maroon-light), var(--maroon-primary));
+
+  background: linear-gradient(
+    to bottom right,
+    var(--maroon-light),
+    var(--maroon-primary)
+  );
+
   border-radius: 16px;
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(116, 42, 42, 0.2), 0 4px 6px -4px rgba(116, 42, 42, 0.1);
+
+  box-shadow:
+    0 10px 15px -3px rgba(116, 42, 42, 0.2),
+    0 4px 6px -4px rgba(116, 42, 42, 0.1);
+}
+
+.page-header-content {
+  min-width: 0;
+}
+
+.add-product-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  flex-shrink: 0;
+
+  padding: 11px 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: var(--maroon-primary);
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.add-product-button:hover {
+  background: #fffafa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.add-product-button:active {
+  transform: translateY(0);
+}
+
+.add-product-icon {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
 }
 
 .page-header h1 {
@@ -181,11 +245,58 @@
 }
 
 @media (max-width: 768px) {
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .add-product-button {
+    width: 100%;
+  }
+
   .filter-toolbar {
     grid-template-columns: 1fr;
   }
 
   .app {
     padding: 32px 16px;
+  }
+}
+
+.add-product-button,
+.edit-product-button {
+  border: none;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-product-button {
+  padding: 10px 16px;
+  background: #ffffff;
+  color: var(--maroon-primary);
+  white-space: nowrap;
+}
+
+.add-product-button:hover {
+  background: #fef2f2;
+}
+
+.edit-product-button {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-main);
+}
+
+.edit-product-button:hover {
+  background: #f8fafc;
+}
+
+@media (max-width: 768px) {
+  .add-product-button {
+    width: 100%;
   }
 }

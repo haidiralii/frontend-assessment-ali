@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ProductForm from './components/ProductForm'
 import './App.css'
 
 const API_URL =
@@ -25,6 +26,9 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
 
   useEffect(() => {
     fetch(API_URL)
@@ -54,8 +58,21 @@ function App() {
     <main className="app">
       <div className="container">
         <header className="page-header">
-          <h1>Product Dashboard</h1>
-          <p>Manage and view your products.</p>
+          <div>
+            <h1>Product Dashboard</h1>
+            <p>Manage and view your products.</p>
+          </div>
+
+          <button
+            type="button"
+            className="add-product-button"
+            onClick={() => {
+              setSelectedProduct(null)
+              setIsFormOpen(true)
+            }}
+          >
+            + Add Product
+          </button>
         </header>
 
         <section className="filter-toolbar">
@@ -94,7 +111,7 @@ function App() {
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
             >
-              <option value="">All Statuses</option>
+              <option value="">All Status</option>
               <option value="In Stock">In Stock</option>
               <option value="Out of Stock">Out of Stock</option>
             </select>
@@ -110,6 +127,7 @@ function App() {
                 <th>Price</th>
                 <th>Status</th>
                 <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
 
@@ -139,6 +157,20 @@ function App() {
                   </td>
 
                   <td>{formatDate(product.createdAt)}</td>
+
+                  {/* Tambahkan ini */}
+                  <td>
+                    <button
+                      type="button"
+                      className="edit-product-button"
+                      onClick={() => {
+                        setSelectedProduct(product)
+                        setIsFormOpen(true)
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -151,6 +183,15 @@ function App() {
           )}
         </section>
       </div>
+      {isFormOpen && (
+        <ProductForm
+          product={selectedProduct}
+          onClose={() => {
+            setIsFormOpen(false)
+            setSelectedProduct(null)
+          }}
+        />
+      )}
     </main>
   )
 }
